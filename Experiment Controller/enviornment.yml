@@ -1,0 +1,13 @@
+name: EyeGazeStudy
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy
+  - matplotlib
+  - pyzmq
+  - pyqt
+  
+  # - pip:
+  #   - git+https://github.com/blaze/dask.git#egg=dask[complete]
