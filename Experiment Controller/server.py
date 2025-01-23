@@ -37,7 +37,8 @@ class HoloLensCoordinatorApp(QWidget):
         for i, label in enumerate(dropdownLabels):
             lbl = QLabel(label)
             dropdown = QComboBox()
-            dropdown.addItems(["Hide", "Style1", "Style2", "Style3", "Style4"])
+            # dropdown.addItems(["Hide", "Style1", "Style2", "Style3", "Style4"])
+            dropdown.addItems(["Hide", "Style1", "Style2", "Style3"])
             dropdown.currentIndexChanged.connect(
                 lambda idx, i=i: self.changeCursorVisual(i, idx)
             )
@@ -66,9 +67,11 @@ class HoloLensCoordinatorApp(QWidget):
 
     def startRecording(self):
         self.publisher.send_string("DataCollection: Start Recording")
+        self.startButton.setText("Recording Sent!")
 
     def stopRecording(self):
         self.publisher.send_string("DataCollection: Stop Recording")
+        self.startButton.setText("Start Recording!")
 
     def changeCursorVisual(self, dropdownIndex, style):
         userMap = {
@@ -78,6 +81,8 @@ class HoloLensCoordinatorApp(QWidget):
             3: "User2/OtherCursorVisual"
         }
         topic = f"{userMap[dropdownIndex]}"
+        if style == 3:
+            style += 1
         msg = f"{topic}: {style}"
         self.publisher.send_string(msg)
         print(msg)
