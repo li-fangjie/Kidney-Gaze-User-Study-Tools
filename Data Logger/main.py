@@ -1,7 +1,10 @@
 import cv2
 import numpy as np
 import time
+from datetime import datetime
 import csv
+import os
+import sys
 import sys
 
 def time_since_epoch_millisec():
@@ -15,6 +18,11 @@ def main():
 
     fps = int(sys.argv[1])
     output_filename = sys.argv[2]
+
+    curT = datetime.now()
+    tString = curT.strftime("%Y%m%d_%H%M%S")
+
+    output_filename += ("_" + tString)
 
     # Create a VideoCapture object and use camera to capture the video
     cap = cv2.VideoCapture(2)  # Change the index based on your camera

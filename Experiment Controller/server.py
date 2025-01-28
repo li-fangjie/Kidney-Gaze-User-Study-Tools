@@ -1,11 +1,14 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QComboBox, QPushButton, QDoubleSpinBox
 import zmq
+from datetime import datetime
 
 
 class HoloLensCoordinatorApp(QWidget):
     def __init__(self):
         super().__init__()
+
+        self.start_time = 0
         
         # ZeroMQ Publisher Setup
         self.context = zmq.Context()
@@ -68,10 +71,21 @@ class HoloLensCoordinatorApp(QWidget):
     def startRecording(self):
         self.publisher.send_string("DataCollection: Start Recording")
         self.startButton.setText("Recording Sent!")
+        self.start_time = datetime.now()
+        print(f"Recording Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
     def stopRecording(self):
         self.publisher.send_string("DataCollection: Stop Recording")
         self.startButton.setText("Start Recording!")
+        # Record the end time
+        end_time = datetime.now()
+        print(f"Recording End Time: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        # Calculate the elapsed time in seconds
+        elapsed_time = (end_time - self.start_time).total_seconds()
+        print(f"Elapsed Time: {elapsed_time} sec")
+
 
     def changeCursorVisual(self, dropdownIndex, style):
         userMap = {
