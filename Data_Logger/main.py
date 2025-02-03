@@ -25,14 +25,14 @@ def main():
     output_filename += ("_" + tString)
 
     # Create a VideoCapture object and use camera to capture the video
-    cap = cv2.VideoCapture(2)  # Change the index based on your camera
+    cap = cv2.VideoCapture(3)  # Change the index based on your camera
     # print("hi")
     if not cap.isOpened():
         print("Error opening video stream")
         return
 
-    frame_width = 1280
-    frame_height = 720
+    frame_width = 1920 # 1280 # 1920
+    frame_height = 1080 # 720 # 1080  
 
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
@@ -40,13 +40,13 @@ def main():
     # Get frame dimensions
     frame_width_act = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height_act = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    print(frame_width)
+    print(frame_height)
     
     assert(frame_width == frame_width_act)
     assert(frame_height == frame_height)
 
-    print(frame_width)
-    print(frame_height)
-    
+
     frame_no = 0
     record = False
     old_time = 0
