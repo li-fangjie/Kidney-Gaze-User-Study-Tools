@@ -7,6 +7,35 @@ import os
 import sys
 import sys
 
+def getAvailableResolutions(videoCapture):
+    if not videoCapture.isOpened():
+        print("Error: Video source is not open")
+        return None
+
+    maxWidth, maxHeight = 0, 0
+    availableResolutions = []
+
+    # Test a range of common resolutions (expandable)
+    testWidths = [640, 1280, 1920] # [320, 640, 1280, 1920, 2560, 3840]
+    testHeights = [360, 720, 1080] # [240, 360, 720, 1080, 1440, 2160]
+
+    for width, height in zip(testWidths, testHeights):
+        videoCapture.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        videoCapture.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+
+        actualWidth = int(videoCapture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        actualHeight = int(videoCapture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        if (actualWidth, actualHeight) == (width, height):
+            availableResolutions.append((width, height))
+
+            # Track the highest resolution
+            if actualWidth * actualHeight > maxWidth * maxHeight:
+                maxWidth, maxHeight = actualWidth, actualHeight
+
+    return availableResolutions, (maxWidth, maxHeight)
+
+
 def time_since_epoch_millisec():
     return int(round(time.time() * 1000))
 
@@ -25,14 +54,17 @@ def main():
     output_filename += ("_" + tString)
 
     # Create a VideoCapture object and use camera to capture the video
-    cap = cv2.VideoCapture(2)  # Change the index based on your camera
+    cap = cv2.VideoCapture(3)  # Change the index based on your camera
     # print("hi")
     if not cap.isOpened():
         print("Error opening video stream")
         return
+    
+    availableRes, bestRes = getAvailableResolutions(cap)
+    print(availableRes)
 
-    frame_width = 1280
-    frame_height = 720
+    frame_width = bestRes[0]
+    frame_height = bestRes[1]
 
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
@@ -44,8 +76,7 @@ def main():
     assert(frame_width == frame_width_act)
     assert(frame_height == frame_height)
 
-    print(frame_width)
-    print(frame_height)
+    print(f"Resolution selected: {frame_width} x {frame_height}")
     
     frame_no = 0
     record = False
@@ -63,7 +94,7 @@ def main():
         
         while True:
             ret, frame = cap.read()
-            print(frame.shape)
+            # print(frame.shape)
             if not ret:
                 break
             
@@ -78,11 +109,11 @@ def main():
                 video_writer.write(frame)
                 # Log the frame number and timestamp
                 csv_writer.writerow([frame_no, time_since_epoch_millisec()])
-                print(f"\rRecording FPS: {fps_counter:.2f}", end="")
+                print(f"\rRecording FPS: {fps_counter:.2f}", end="\r")
                 frame_no += 1
             else:
                 # pass
-                print(f"\rFPS: {fps_counter:.2f}", end="")
+                print(f"\rFPS: {fps_counter:.2f}", end="\r")
 
             # Display the resulting frame
             cv2.imshow("Frame", frame)
@@ -93,8 +124,9 @@ def main():
                 break
             if key == 32:  # SPACE key
                 record = True
-                print("Recording started")
+                print("\nRecording started")
 
+    print()
     # Release everything when done
     cap.release()
     video_writer.release()
