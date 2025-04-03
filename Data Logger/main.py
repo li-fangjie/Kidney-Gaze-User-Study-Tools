@@ -111,12 +111,14 @@ def main():
                 csv_writer.writerow([frame_no, time_since_epoch_millisec()])
                 print(f"\rRecording FPS: {fps_counter:.2f}", end="\r")
                 frame_no += 1
+
             else:
                 # pass
+                # cv2.imshow("Frame", frame)
                 print(f"\rFPS: {fps_counter:.2f}", end="\r")
 
-            # Display the resulting frame
             cv2.imshow("Frame", frame)
+            # Display the resulting frame
 
             # Press ESC to exit, SPACE to start recording
             key = cv2.waitKey(1)
