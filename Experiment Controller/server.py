@@ -8,7 +8,8 @@ class HoloLensCoordinatorApp(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.start_time = 0
+        self.start_time = datetime.now()
+        self.operation_active = False  # Tracks current operation state
         
         # ZeroMQ Publisher Setup
         self.context = zmq.Context()
@@ -23,10 +24,14 @@ class HoloLensCoordinatorApp(QWidget):
         # Recording Buttons
         self.startButton = QPushButton("Start Recording")
         self.stopButton = QPushButton("Stop Recording")
+        self.operationButton = QPushButton("Start Operation")  # New toggle button
+        self.operationButton.clicked.connect(self.toggleOperation)
+
         self.startButton.clicked.connect(self.startRecording)
         self.stopButton.clicked.connect(self.stopRecording)
         mainLayout.addWidget(self.startButton)
         mainLayout.addWidget(self.stopButton)
+        mainLayout.addWidget(self.operationButton) 
 
         # Cursor Visual Dropdowns
         dropdownLabels = [
@@ -74,6 +79,17 @@ class HoloLensCoordinatorApp(QWidget):
         self.start_time = datetime.now()
         print(f"Recording Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
+    def toggleOperation(self):
+        """Send start/stop operation commands and toggle button text."""
+        if not self.operation_active:
+            self.publisher.send_string("AppOperation: Start")
+            self.operationButton.setText("Stop Operation")
+            print("AppOperation: Start")
+        else:
+            self.publisher.send_string("AppOperation: Stop")
+            self.operationButton.setText("Start Operation")
+            print("AppOperation: Stop")
+        self.operation_active = not self.operation_active
 
     def stopRecording(self):
         self.publisher.send_string("DataCollection: Stop Recording")
