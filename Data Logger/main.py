@@ -5,7 +5,6 @@ from datetime import datetime
 import csv
 import os
 import sys
-import sys
 
 def getAvailableResolutions(videoCapture):
     if not videoCapture.isOpened():
