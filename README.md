@@ -26,3 +26,10 @@ You can create your own virtual enviornment with these dependencies.
 - Start the controller: `python "./Experiment Controller/server.py"`
 
 ### `Data Logger`
+- Connect the ureteroscope video output to a video capture card.
+- Connect the video capture card usb output to the laptop, so that the capture card acts as a webcam.
+- Open OBS studio, and set the video capture card output as the input source. Make sure the output/scene size is correct.
+- Start a virtual camera.
+- Enable the virtual environment for data logger (if you have one), or just make sure the dependencies are met.
+- Start Data Logger: `python "./Data Logger/main.py [fps] [output_filename]`, where `[fps]` is the fps of the output file, and `[output_filename]` is the file name of the output video.
+- With the focus on the Data Logger video window (e.g. by clicking on it), press **space** to start recording. Press **esc** to stop recording.
