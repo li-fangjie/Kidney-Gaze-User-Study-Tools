@@ -96,6 +96,17 @@ class HoloLensCoordinatorApp(QWidget):
     def _bind_socket(self):
         try:
             self.publisher = self.context.socket(zmq.PUB)
+            self.publisher.setsockopt(zmq.TCP_KEEPALIVE, 1)        # on/off
+            self.publisher.setsockopt(zmq.TCP_KEEPALIVE_IDLE, 5)  # seconds idle before probes
+            self.publisher.setsockopt(zmq.TCP_KEEPALIVE_INTVL, 1) # seconds between probes
+            self.publisher.setsockopt(zmq.TCP_KEEPALIVE_CNT, 5)    # probe count before drop
+
+            # --- ZMTP heartbeats (libzmq >= 4.2) ---
+            self.publisher.setsockopt(zmq.HEARTBEAT_IVL, 500)     # send PING every 1000 ms
+            self.publisher.setsockopt(zmq.HEARTBEAT_TIMEOUT, 2000) # drop peer if no traffic after PING for 2000 ms
+            self.publisher.setsockopt(zmq.HEARTBEAT_TTL, 3000)     # ask remote to time out after 3000 ms of silence
+
+
             self.publisher.bind(f"tcp://*:{self.port}")
             print(f"[ZMQ] Bound to tcp://*:{self.port}")
         except zmq.ZMQError as e:
