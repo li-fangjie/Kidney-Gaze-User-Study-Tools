@@ -232,7 +232,7 @@ class ZMQListenerThread(QObject):
     def run(self):
 
         while self.running:
-            socks = dict(self.poller.poll(timeout=100))  # 100ms timeout
+            socks = dict(self.poller.poll(timeout=32))  # 100ms timeout
             if self.router in socks:
                 msg = self.router.recv_multipart()
                 identity, content = msg
