@@ -40,8 +40,8 @@ def time_since_epoch_millisec():
 
 def main():
     # Check for command line arguments
-    if len(sys.argv) < 3:
-        print("Usage: python script.py <fps> <output_filename>")
+    if len(sys.argv) < 4:
+        print("Usage: python script.py <fps> <output_filename> <Video Capture Device Index>")
         return
 
     fps = int(sys.argv[1])
@@ -53,7 +53,7 @@ def main():
     output_filename += ("_" + tString)
 
     # Create a VideoCapture object and use camera to capture the video
-    cap = cv2.VideoCapture(3)  # Change the index based on your camera
+    cap = cv2.VideoCapture(int(sys.argv[3]))  # Change the index based on your camera
     # print("hi")
     if not cap.isOpened():
         print("Error opening video stream")
