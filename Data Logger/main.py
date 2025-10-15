@@ -5,6 +5,7 @@ from datetime import datetime
 import csv
 import os
 import sys
+import argparse
 
 def getAvailableResolutions(videoCapture):
     if not videoCapture.isOpened():
@@ -38,14 +39,43 @@ def getAvailableResolutions(videoCapture):
 def time_since_epoch_millisec():
     return int(round(time.time() * 1000))
 
-def main():
-    # Check for command line arguments
-    if len(sys.argv) < 3:
-        print("Usage: python script.py <fps> <output_filename>")
-        return
 
-    fps = int(sys.argv[1])
-    output_filename = sys.argv[2]
+def main():
+    parser = argparse.ArgumentParser(
+        description="Script for Saving Videos\
+            \nUsage: python script.py <fps> \
+            <output_filename> (<width> <height>)"
+        )
+    parser.add_argument(
+        "--fps",
+        type=int,
+        default=60,
+        help="The frame rate of the saved video"
+        )
+    parser.add_argument(
+        "--output_filename",
+        type=str,
+        default="video",
+        help="File name stem (time stamp will be appended)")
+    parser.add_argument(
+        "--width",
+        type=int,
+        default=None,
+        help="Width of input source. If left empty, \
+            the largest will be picked automatically")
+    parser.add_argument(
+        "--height",
+        type=int,
+        default=None,
+        help="Height of input source. If left empty, \
+            the largest will be picked automatically")
+
+    args = parser.parse_args()
+
+    fps = args.fps  # int(sys.argv[1])
+    output_filename = args.output_filename  # sys.argv[2]
+    frame_width = args.width
+    frame_height = args.height
 
     curT = datetime.now()
     tString = curT.strftime("%Y%m%d_%H%M%S")
@@ -53,18 +83,19 @@ def main():
     output_filename += ("_" + tString)
 
     # Create a VideoCapture object and use camera to capture the video
-    cap = cv2.VideoCapture(3)  # Change the index based on your camera
-    # print("hi")
+    cap = cv2.VideoCapture(1)  # Change the index based on your camera
     if not cap.isOpened():
         print("Error opening video stream")
         return
-    
+
     availableRes, bestRes = getAvailableResolutions(cap)
     print(availableRes)
 
-    frame_width = bestRes[0]
-    frame_height = bestRes[1]
-
+    if (frame_width, frame_height) not in availableRes:
+        print(f"frame width or height ({frame_width}, {frame_height})\
+ not provided/available, automatically picking the largest size")
+        frame_width = bestRes[0]
+        frame_height = bestRes[1]
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
 
@@ -73,7 +104,7 @@ def main():
     frame_height_act = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     
     assert(frame_width == frame_width_act)
-    assert(frame_height == frame_height)
+    assert(frame_height == frame_height_act)
 
     print(f"Resolution selected: {frame_width} x {frame_height}")
     
@@ -87,8 +118,8 @@ def main():
         csv_writer = csv.writer(csvfile)
         # Define the codec and create VideoWriter object
         video_writer = cv2.VideoWriter(f"{output_filename}.avi", 
-                                        cv2.VideoWriter_fourcc(*'MJPG'), 
-                                        fps, 
+                                        cv2.VideoWriter_fourcc(*'MJPG'),
+                                        fps,
                                         (frame_width, frame_height))
         
         while True:
