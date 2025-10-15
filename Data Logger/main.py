@@ -1,11 +1,9 @@
 import cv2
-import numpy as np
 import time
 from datetime import datetime
 import csv
-import os
-import sys
 import argparse
+
 
 def getAvailableResolutions(videoCapture):
     if not videoCapture.isOpened():
@@ -16,8 +14,8 @@ def getAvailableResolutions(videoCapture):
     availableResolutions = []
 
     # Test a range of common resolutions (expandable)
-    testWidths = [640, 1280, 1920] # [320, 640, 1280, 1920, 2560, 3840]
-    testHeights = [360, 720, 1080] # [240, 360, 720, 1080, 1440, 2160]
+    testWidths = [640, 1280, 1920]  # [320, 640, 1280, 1920, 2560, 3840]
+    testHeights = [360, 720, 1080]  # [240, 360, 720, 1080, 1440, 2160]
 
     for width, height in zip(testWidths, testHeights):
         videoCapture.set(cv2.CAP_PROP_FRAME_WIDTH, width)
@@ -58,6 +56,11 @@ def main():
         default="video",
         help="File name stem (time stamp will be appended)")
     parser.add_argument(
+        "--input_device_index",
+        type=int,
+        default=1,
+        help="index input source.")
+    parser.add_argument(
         "--width",
         type=int,
         default=None,
@@ -76,6 +79,7 @@ def main():
     output_filename = args.output_filename  # sys.argv[2]
     frame_width = args.width
     frame_height = args.height
+    input_device_index = args.input_device_index
 
     curT = datetime.now()
     tString = curT.strftime("%Y%m%d_%H%M%S")
@@ -83,7 +87,7 @@ def main():
     output_filename += ("_" + tString)
 
     # Create a VideoCapture object and use camera to capture the video
-    cap = cv2.VideoCapture(1)  # Change the index based on your camera
+    cap = cv2.VideoCapture(input_device_index)
     if not cap.isOpened():
         print("Error opening video stream")
         return
@@ -102,7 +106,7 @@ def main():
     # Get frame dimensions
     frame_width_act = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height_act = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    
+
     assert(frame_width == frame_width_act)
     assert(frame_height == frame_height_act)
 
@@ -117,10 +121,12 @@ def main():
     with open(f"{output_filename}.csv", "w", newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
         # Define the codec and create VideoWriter object
-        video_writer = cv2.VideoWriter(f"{output_filename}.avi", 
-                                        cv2.VideoWriter_fourcc(*'MJPG'),
-                                        fps,
-                                        (frame_width, frame_height))
+        video_writer = cv2.VideoWriter(
+            f"{output_filename}.avi",
+            cv2.VideoWriter_fourcc(*'MJPG'),
+            fps,
+            (frame_width, frame_height)
+            )
         
         while True:
             ret, frame = cap.read()
@@ -163,6 +169,7 @@ def main():
     cap.release()
     video_writer.release()
     cv2.destroyAllWindows()
-    
+
+
 if __name__ == "__main__":
     main()
